@@ -4,7 +4,7 @@ import tensorflow as tf
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-
+import re
 needed=['[UNK]',
  '-',
  'r',
@@ -185,6 +185,16 @@ characters = {'5', 'o', 'e', 'T', 'f', 'N', 'h', '!', 'S', '1', 'm', 'b', 'c', '
 
 max_len=21
 
+def sort_natural(file_list):
+    """
+    Sort a list of filenames in natural order, i.e., numerically when filenames contain numbers.
+    """
+    def natural_key(text):
+        # Split text into a list of text and numbers
+        return [int(text) if text.isdigit() else text for text in re.split('([0-9]+)', text)]
+
+    return sorted(file_list, key=natural_key)
+
 def distortion_free_resize(image, img_size):
     w, h = img_size
     image = tf.image.resize(image, size=(h, w), preserve_aspect_ratio=True)  # size parameter takes height first and then width
@@ -238,23 +248,44 @@ def preprocessing_image(image_path, img_size=(image_width, image_height)):
 
 
 
-def decode_batch_prediction(pred):
-  input_len = np.ones(pred.shape[0])*pred.shape[1]
+def decode_batch_prediction(pred,):
+    input_len = np.ones(pred.shape[0]) * pred.shape[1]
 
-  # Use greedy search For complex tasks , you can use beam search.
-  results = tf.keras.backend.ctc_decode(pred, input_length=input_len, greedy = True )[0][0][:,:max_len]
-  print("the results are",results)
-  #Iterate over the results and get back the text.
-  output_text = []
-  for res in results:
-    res = tf.gather(res, tf.where(tf.math.not_equal(res, -1)))
-    res_int = np.squeeze(res.numpy())
-    res_chars = [index_to_char(int(idx)) for idx in res_int]
+    # Use greedy search. For complex tasks, consider using beam search.
+    results = tf.keras.backend.ctc_decode(pred, input_length=input_len, greedy=True)[0][0][:, :max_len]
+    print("the results are", results)
+    
+    # Initialize the list to store decoded texts
+    output_text = []
 
+    for res in results:
+        # Convert the Tensor to NumPy array
+        res_np = res.numpy()
+        
+        # Ensure res_np is not empty and has the expected shape
+        if res_np.size == 0:
+            output_text.append("")
+            continue
+        
+        # Flatten the array if necessary
+        if len(res_np.shape) > 1:
+            res_np = np.squeeze(res_np)
+        
+        # Convert to list of indices
+        res_int = res_np.astype(int)
+        
+        # Ensure res_int is a 1D array
+        if res_int.ndim != 1:
+            res_int = res_int.flatten()
+        
+        # Convert indices to characters
+        res_chars = [index_to_char(int(idx)) for idx in res_int if idx != -1]
+        
         # Join the characters to form the final string
-    res_str = ''.join(res_chars)
-    output_text.append(res_str)
-  return output_text
+        res_str = ''.join(res_chars)
+        output_text.append(res_str)
+
+    return output_text
 
 
 def preprocess_image(image_path):

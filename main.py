@@ -8,7 +8,8 @@ import numpy as np
 import tensorflow as tf
 import os
 import utils
-import cv2
+from segmenter import makesegmentedimage
+
 
 
 app = FastAPI()
@@ -58,27 +59,35 @@ async def upload_image(file: UploadFile = File(...), additional_info: Optional[s
 
     upload_dir = 'uploads'
     os.makedirs(upload_dir, exist_ok=True)
-    
-    # Save the image
+
     file_path = os.path.join(upload_dir, file.filename)
-    image.save(file_path)  # No await here
+    image.save(file_path)  
+    final_text=[]
+    makesegmentedimage(file_path, 'segmented_images')
+    file_list=os.listdir('segmented_images')
+    sorted_files = utils.sort_natural(file_list)
+    for i in sorted_files:
+        processed_image = utils.processed(os.path.join('segmented_images',i))
+        if processed_image.shape != (128, 32, 1):
+            raise ValueError("Processed image has incorrect shape. Expected shape is (128, 32, 1).")
+        processed_image = np.expand_dims(processed_image, axis=0)
+        text = utils.recongize_text_from_already_segmented_image(processed_image,loaded_model)
+        final_text+=text+[' ']
+    # processed_image = utils.processed(file_path)
+    # if processed_image.shape != (128, 32, 1):
+    #     raise ValueError("Processed image has incorrect shape. Expected shape is (128, 32, 1).")
+    # processed_image = np.expand_dims(processed_image, axis=0)
 
-    # Process the image
-    processed_image = utils.processed(file_path)
-    if processed_image.shape != (128, 32, 1):
-        raise ValueError("Processed image has incorrect shape. Expected shape is (128, 32, 1).")
-    processed_image = np.expand_dims(processed_image, axis=0)
 
 
-
-    text = utils.recongize_text_from_already_segmented_image(processed_image,loaded_model)
+    # text = utils.recongize_text_from_already_segmented_image(processed_image,loaded_model)
     # Make prediction
     # prediction = loaded_model.predict(processed_image)
     # pred_text=utils.decode_batch_prediction(prediction)
     
     return {
         "filename": file.filename,
-        "prediction":text,  # Convert prediction to list for JSON serialization
+        "prediction":final_text,  # Convert prediction to list for JSON serialization
         "additional_info": additional_info,
     }
 

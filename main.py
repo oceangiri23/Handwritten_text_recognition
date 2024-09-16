@@ -17,7 +17,7 @@ app = FastAPI()
 # CORS settings
 origins = [
     "http://localhost",
-    "http://localhost:5500",  # Replace with your frontend URL
+    "http://localhost:3000",  # Replace with your frontend URL
     "http://127.0.0.1:5500",
     "http://localhost:8000",  # Replace with your backend URL if separate
     "http://127.0.0.1:8000",
@@ -49,7 +49,7 @@ class GenerateRequest(BaseModel):
     additional_info: Optional[str] = None
 
 
-@app.post("/upload-image/")
+@app.post("/upload-image")
 async def upload_image(file: UploadFile = File(...), additional_info: Optional[str] = Form(None)):
     if file.content_type not in ["image/jpeg", "image/png"]:
         raise HTTPException(status_code=400, detail="Invalid file type. Only JPEG and PNG are allowed.")
@@ -84,10 +84,11 @@ async def upload_image(file: UploadFile = File(...), additional_info: Optional[s
     # Make prediction
     # prediction = loaded_model.predict(processed_image)
     # pred_text=utils.decode_batch_prediction(prediction)
+    complete_text=''.join(final_text)
     
     return {
         "filename": file.filename,
-        "prediction":final_text,  # Convert prediction to list for JSON serialization
+        "prediction":complete_text,  # Convert prediction to list for JSON serialization
         "additional_info": additional_info,
     }
 

@@ -1,0 +1,56 @@
+/* Assignment.css */
+
+.assignment-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+    background-color: #121212; /* Dark background */
+    color: #e0e0e0; /* Light text color */
+    border-radius: 8px; /* Rounded corners for container */
+  }
+  
+  .assignment-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Space between cards */
+  }
+  
+  .assignment-card {
+    border: 1px solid #333; /* Darker border */
+    border-radius: 8px;
+    padding: 16px;
+    background-color: #1e1e1e; /* Dark card background */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); /* Darker shadow */
+    flex: 1 1 calc(33% - 20px); /* Responsive card size */
+    min-width: 250px; /* Minimum width of the card */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transition for hover effect */
+  }
+  
+  .assignment-card:hover {
+    transform: translateY(-5px); /* Move up on hover */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6); /* Darker shadow on hover */
+  }
+  
+  .assignment-card h3 {
+    margin: 0 0 8px;
+    color: #90caf9; /* Light blue color for titles */
+  }
+  
+  .assignment-card p {
+    margin: 4px 0;
+    color: #b0bec5; /* Lighter color for description */
+  }
+  
+  .due-date {
+    font-style: italic;
+    color: #ffcc80; /* Light orange for due date */
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 600px) {
+    .assignment-card {
+      flex: 1 1 100%; /* Full width on small screens */
+    }
+  }
+  

@@ -5,7 +5,7 @@ This project focuses on recognizing handwritten text using two different models:
 ## Project Structure
 
 - **Backend**: A FastAPI backend (`main.py`) that handles model inference.
-- **Frontend**: A Next.js application for the user interface.
+- **Frontend**: A React.js application for the user interface with firebase as backend. 
 - **Models**: 
   1. **Word Recognition Model**: A CNN+LSTM+CTC architecture for recognizing words from images.
   2. **Word Detection Model**: A YOLOv8 model for detecting word boundaries in images.
@@ -67,19 +67,15 @@ The models are trained on the **IAM Handwriting Dataset**, which contains handwr
     npm install
     ```
 
-3. Run the Next.js development server:
+3. Run the React.js development server:
 
     ```bash
-    npm run dev
+    npm start
     ```
 
    The frontend will be available at `http://localhost:3000`.
 
-## How to Use
 
-1. Upload an image containing handwritten text via the frontend.
-2. The backend will detect word boundaries using the YOLOv8 model.
-3. For each detected word, the recognition model (CNN+LSTM+CTC) will predict the text.
 
 ## Models
 

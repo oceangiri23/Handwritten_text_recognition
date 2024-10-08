@@ -14,6 +14,7 @@ const AssignmentDetail = () => {
     const [user, loading, error] = useAuthState(auth);
     const [assignment, setAssignment] = React.useState(null);
     const [imageUrl, setImageUrl] = React.useState(null);
+    const [score_obtained, set_score_obtained]=React.useState(null)
 
     const fetchAssignments = async () => {
         if (!user) return;
@@ -63,7 +64,7 @@ const AssignmentDetail = () => {
     };
     const graderApi = async (base_text) => {
         try {
-            const response = await axios.post("http://localhost:8000/grade", { base_text, obtained_text: submission.text_obtained_from_calling });
+            const response = await axios.post("http://localhost:8001/grade", { base_text, obtained_text: submission.text_obtained_from_calling });
             console.log(response.data)
             return response.data;
         }
@@ -100,11 +101,17 @@ const AssignmentDetail = () => {
                 throw new Error("Base text not found");
             }
             const score_ = await graderApi(assignment?.base_text || '');
+            console.log(score_)
+
+
+            const score =parseInt(assignment.score)*score_?.result/100
+            set_score_obtained(score)
+         
             const newSubmission = {
                 assignment: id,
                 base_text: assignment?.base_text || '',
                 obtained_text: submission.text_obtained_from_calling,
-                score:parseInt(assignment.score)*score_,
+                score:score,
                 imageUrl
             };
             const userRef = await db.collection("users").where("uid", "==", user.uid).get();
@@ -148,6 +155,10 @@ const AssignmentDetail = () => {
                 <p>Image uploaded: {submission.image_uploaded ? 'Yes' : 'No'}</p>
                 <img src={submission?.image_uploaded} alt={assignment?.title} className="assignment-image" />
                 <p>Text obtained from image: {submission.text_obtained_from_calling}</p>
+
+                {
+                    score_obtained && <p>Score Obtained :{score_obtained}</p>
+                }
                 {
                     submission.text_obtained_from_calling && <button type='submit' onClick={graderApi} style={{
                         backgroundColor: "green",

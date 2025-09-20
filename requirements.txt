@@ -32,7 +32,7 @@ idna==3.7
 importlib-metadata==7.0.1
 importlib-resources==6.4.0
 iniconfig==1.1.1
-keras==2.10.0
+keras==2.11.0
 keras-preprocessing==1.1.2
 kiwisolver==1.4.4
 markdown==3.4.1
